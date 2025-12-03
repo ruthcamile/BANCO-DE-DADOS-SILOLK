@@ -1,4 +1,4 @@
-create database SiloLK;
+-- create database SiloLK;
 -- drop database SiloLK;
 use SiloLk;
 
