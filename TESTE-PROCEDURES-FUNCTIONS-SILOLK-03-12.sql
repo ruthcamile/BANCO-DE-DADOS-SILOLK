@@ -81,4 +81,24 @@ CALL sp_alertas_pendentes_empresa(1);
 CALL sp_estatisticas_comprador(1);
 
 -- Teste 9: Verificar sensores inativos
-CALL sp_verificar_sensores_i
+CALL sp_verificar_sensores_inativos();
+
+-- Teste 10: Dashboard de empresa
+CALL sp_dashboard_empresa(1);
+
+-- Teste 11: Listar lotes com atenção urgente
+CALL sp_lotes_atencao_urgente();
+
+-- Teste 12: Finalizar transporte
+CALL sp_finalizar_transporte(1, @msg);
+SELECT @msg AS mensagem;
+
+-- Teste 13: Finalizar lote
+CALL sp_finalizar_lote(50, @msg);
+SELECT @msg AS mensagem;
+
+-- Teste 14: Transferir sensor
+CALL sp_transferir_sensor(1, 2, @msg);
+SELECT @msg AS mensagem;
+
+SELECT '========== TESTES CONCLUÍDOS ==========' AS resultado;
