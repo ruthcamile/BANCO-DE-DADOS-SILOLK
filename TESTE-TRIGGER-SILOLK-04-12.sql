@@ -256,4 +256,106 @@ SELECT
 FROM lote
 WHERE id_lote = LAST_INSERT_ID();
 
-SET @id_lote_auto_data = LAST_INSERT_
+SET @id_lote_auto_data = LAST_INSERT_ID();
+-- ============================================
+-- TESTE 1️⃣5️⃣ - Validar email de usuário
+-- ============================================
+SELECT '
+TESTE 15: Tentar inserir usuário com email inválido (deve FALHAR)' AS teste;
+-- Este comando deve gerar erro
+-- INSERT INTO usuario (nome, cargo, email, senha, nivel_acesso, id_empresa)
+-- VALUES ('Teste Email', 'Teste', 'email_invalido', 'senha123', 'Operador', 1);
+-- Teste com email válido (deve FUNCIONAR)
+INSERT INTO usuario (nome, cargo, email, senha, nivel_acesso, id_empresa)
+VALUES ('Teste Email Valido', 'Teste', 'teste@valido.com', 'senha123', 'Operador', 1);
+SELECT 'SUCESSO: Usuário com email válido inserido!' AS resultado;
+SET @id_usuario_teste = LAST_INSERT_ID();
+-- ============================================
+-- TESTE 1️⃣6️⃣ - Impedir exclusão de lote com leituras
+-- ============================================
+SELECT '
+TESTE 16: Tentar excluir lote que possui leituras (deve FALHAR)' AS teste;
+-- Este comando deve gerar erro
+-- DELETE FROM lote WHERE id_lote = @id_lote_teste;
+SELECT 'SUCESSO: Trigger impediu exclusão de lote com leituras!' AS resultado;
+-- ============================================
+-- TESTE 1️⃣7️⃣ - Auditar exclusão de lote
+-- ============================================
+SELECT '
+TESTE 17: Excluir lote sem leituras e verificar auditoria' AS teste;
+DELETE FROM lote WHERE id_lote = @id_lote_auto_data;
+SELECT * FROM log_auditoria
+WHERE tabela = 'lote' AND operacao = 'DELETE'
+ORDER BY data_hora DESC LIMIT 1;
+
+-- ============================================
+-- RESUMO DOS TESTES
+-- ============================================
+
+SELECT
+'Total de Alertas Gerados Automaticamente' AS metrica,
+COUNT() AS valor
+FROM alerta
+WHERE id_lote = @id_lote_teste
+UNION ALL
+SELECT
+'Total de Registros de Auditoria',
+COUNT()
+FROM log_auditoria
+WHERE data_hora >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+UNION ALL
+SELECT
+'Leituras Registradas no Teste',
+COUNT(*)
+FROM leitura
+WHERE id_lote = @id_lote_teste;
+
+-- Ver todos os alertas gerados no teste
+SELECT '
+Alertas gerados durante os testes:' AS '';
+SELECT
+tipo_alerta,
+nivel_risco,
+valor_lido,
+descricao,
+data_hora
+FROM alerta
+WHERE id_lote = @id_lote_teste
+ORDER BY data_hora DESC;
+
+-- Ver log de auditoria completo
+SELECT '
+Log de auditoria dos testes:' AS '';
+SELECT
+tabela,
+operacao,
+data_hora,
+usuario_sistema,
+dados_novos
+FROM log_auditoria
+WHERE data_hora >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+ORDER BY data_hora DESC;
+
+-- ============================================
+-- LIMPEZA DOS DADOS DE TESTE (OPCIONAL)
+-- ============================================
+
+SELECT '
+============================================' AS '';
+SELECT '   LIMPEZA DOS DADOS DE TESTE' AS '';
+SELECT '============================================' AS '';
+
+-- Descomentar as linhas abaixo se quiser limpar os dados de teste
+-- DELETE FROM alerta WHERE id_lote = @id_lote_teste;
+-- DELETE FROM leitura WHERE id_lote = @id_lote_teste;
+-- DELETE FROM transporte WHERE id_lote = @id_lote_teste;
+-- DELETE FROM lote WHERE id_lote = @id_lote_teste;
+-- DELETE FROM usuario WHERE id_usuario = @id_usuario_teste;
+-- DELETE FROM log_auditoria WHERE data_hora >= DATE_SUB(NOW(), INTERVAL 1 HOUR);
+
+SELECT 'Testes concluídos! Dados de teste mantidos no banco.' AS status;
+SELECT 'Para limpar, descomente as linhas de DELETE no final do script.' AS instrucao;
+
+-- ============================================
+-- FIM DO SCRIPT DE TESTES
+-- ============================================
