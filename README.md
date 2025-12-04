@@ -88,9 +88,8 @@ O sistema garante rastreabilidade completa: desde a entrada, passando pelos desl
 
 2. Locais de Armazenamento
 Os locais são cadastrados no sistema e podem ser:
+
 Silos
-
-
 Galpões / Armazéns
 Veículos de transporte
 Cada local possui:
